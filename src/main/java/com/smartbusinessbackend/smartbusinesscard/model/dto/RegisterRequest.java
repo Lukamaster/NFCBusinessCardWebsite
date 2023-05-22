@@ -1,5 +1,7 @@
-package com.smartbusinessbackend.smartbusinesscard.model;
+package com.smartbusinessbackend.smartbusinesscard.model.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,10 +14,21 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
+
+    @NotEmpty
     private String firstName;
+
+    @NotEmpty
     private String lastName;
+
+    @NotEmpty
     private String email;
+
+    @NotEmpty
     private String password;
+
     private String countryOfResidence;
+
+    @NotNull
     private Date dateOfBirth;
 }

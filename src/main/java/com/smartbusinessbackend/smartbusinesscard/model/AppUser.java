@@ -1,10 +1,7 @@
 package com.smartbusinessbackend.smartbusinesscard.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,16 +11,18 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(name = "_users")
-public class User implements UserDetails {
+@Table(name = "users")
+public class AppUser implements UserDetails {
     @Id
     @GeneratedValue
     public Integer id;
     private String firstName;
+    private String username;
     private String lastName;
     private String email;
     private Date dateOfBirth;
@@ -35,21 +34,6 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
-    }
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public Date getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public String getCountryOfResidence() {
-        return countryOfResidence;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.smartbusinessbackend.smartbusinesscard.model;
+package com.smartbusinessbackend.smartbusinesscard.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
