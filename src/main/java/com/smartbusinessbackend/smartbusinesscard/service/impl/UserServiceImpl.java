@@ -55,15 +55,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (username.isEmpty()){
-            log.error("Username is empty, cannot find any user");
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        if (email.isEmpty()){
+            log.error("Email is empty, cannot find any user");
             return null;
         }
-        Optional<AppUser> user = userRepository.findByUsername(username);
-        if (user.isPresent())
-            return user.get();
-        else
-            throw new UsernameNotFoundException(String.format("User with username provided %s does not exist",username));
+        return findByEmail(email);
     }
 }

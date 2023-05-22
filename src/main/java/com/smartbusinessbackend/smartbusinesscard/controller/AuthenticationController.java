@@ -3,7 +3,7 @@ package com.smartbusinessbackend.smartbusinesscard.controller;
 import com.smartbusinessbackend.smartbusinesscard.model.dto.AuthenticationRequest;
 import com.smartbusinessbackend.smartbusinesscard.model.dto.AuthenticationResponse;
 import com.smartbusinessbackend.smartbusinesscard.model.dto.RegisterRequest;
-import com.smartbusinessbackend.smartbusinesscard.service.impl.AuthenticationService;
+import com.smartbusinessbackend.smartbusinesscard.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
