@@ -19,8 +19,8 @@ import java.util.List;
 @Table(name = "users")
 public class AppUser implements UserDetails {
     @Id
-    @GeneratedValue
-    public Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
     private String firstName;
     private String username;
     private String lastName;
