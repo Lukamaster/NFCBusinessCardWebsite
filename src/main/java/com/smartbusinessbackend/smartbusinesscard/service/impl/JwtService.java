@@ -1,10 +1,12 @@
-package com.smartbusinessbackend.smartbusinesscard.config;
+package com.smartbusinessbackend.smartbusinesscard.service.impl;
+import com.smartbusinessbackend.smartbusinesscard.config.jwt.JwtSecurityConfig;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,16 +14,14 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    @Value("${application.security.jwt.secret-key}")
-    private  String signingKey;
+    private final JwtSecurityConfig jwtSecurityConfig;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
-
-    @Value("${application.security.jwt.expiration}")
-    private long jwtExpiration;
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
@@ -33,7 +33,7 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return buildToken(extraClaims, userDetails, jwtExpiration);
+        return buildToken(extraClaims, userDetails, jwtSecurityConfig.getTokenExpiration());
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
@@ -41,8 +41,8 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(SignatureAlgorithm.HS256, SigninKey())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtSecurityConfig.getRefreshTokenExpiration()))
+                .signWith(SignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -62,14 +62,14 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
 
-        return Jwts.parser()
-                .setSigningKey(SigninKey())
-                .parseClaimsJws(token)
+        return Jwts.parserBuilder()
+                .setSigningKey(SignInKey())
+                .build().parseClaimsJws(token)
                 .getBody();
     }
 
-    private Key SigninKey() {
-        byte[] keyBites = Decoders.BASE64.decode(signingKey);
+    private Key SignInKey() {
+        byte[] keyBites = Decoders.BASE64.decode(jwtSecurityConfig.getSecretKey());
         return Keys.hmacShaKeyFor(keyBites);
     }
 }

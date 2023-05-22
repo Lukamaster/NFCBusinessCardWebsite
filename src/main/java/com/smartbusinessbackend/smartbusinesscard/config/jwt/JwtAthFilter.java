@@ -1,5 +1,6 @@
-package com.smartbusinessbackend.smartbusinesscard.config;
+package com.smartbusinessbackend.smartbusinesscard.config.jwt;
 
+import com.smartbusinessbackend.smartbusinesscard.service.impl.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,8 @@ public class JwtAthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private static final String SECURITY_HEADER = "Authorization";
+    private static final String BEARER_HEADER = "Bearer ";
 
     public JwtAthFilter(JwtService jwtService, UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
@@ -29,11 +32,11 @@ public class JwtAthFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader(SECURITY_HEADER);
         final String userEmail;
         final String jwtToken;
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if(authHeader == null || !authHeader.startsWith(BEARER_HEADER)) {
             filterChain.doFilter(request, response);
             return;
         }

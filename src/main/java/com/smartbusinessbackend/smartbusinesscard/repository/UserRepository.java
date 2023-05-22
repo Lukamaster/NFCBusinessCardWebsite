@@ -1,11 +1,14 @@
 package com.smartbusinessbackend.smartbusinesscard.repository;
 
-import com.smartbusinessbackend.smartbusinesscard.model.User;
+import com.smartbusinessbackend.smartbusinesscard.model.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Integer> {
+@Repository
+public interface UserRepository extends JpaRepository<AppUser, Integer> {
 
-    Optional<User> findByEmail(String email);
+    Optional<AppUser> findByEmail(String email);
+    Optional<AppUser> findByUsername(String username);
 }

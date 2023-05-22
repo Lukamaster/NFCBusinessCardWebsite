@@ -1,9 +1,9 @@
 package com.smartbusinessbackend.smartbusinesscard.controller;
 
-import com.smartbusinessbackend.smartbusinesscard.model.AuthenticationRequest;
-import com.smartbusinessbackend.smartbusinesscard.model.AuthenticationResponse;
-import com.smartbusinessbackend.smartbusinesscard.model.RegisterRequest;
-import com.smartbusinessbackend.smartbusinesscard.service.AuthenticationService;
+import com.smartbusinessbackend.smartbusinesscard.model.dto.AuthenticationRequest;
+import com.smartbusinessbackend.smartbusinesscard.model.dto.AuthenticationResponse;
+import com.smartbusinessbackend.smartbusinesscard.model.dto.RegisterRequest;
+import com.smartbusinessbackend.smartbusinesscard.service.impl.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,12 +20,12 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
+        return ResponseEntity.ok().body(authenticationService.register(request));
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        return ResponseEntity.ok().body(authenticationService.authenticate(request));
 
     }
 }
