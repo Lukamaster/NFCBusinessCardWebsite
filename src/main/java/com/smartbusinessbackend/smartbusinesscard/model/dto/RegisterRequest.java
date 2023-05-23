@@ -22,6 +22,9 @@ public class RegisterRequest {
     private String lastName;
 
     @NotEmpty
+    private String username;
+
+    @NotEmpty
     private String email;
 
     @NotEmpty

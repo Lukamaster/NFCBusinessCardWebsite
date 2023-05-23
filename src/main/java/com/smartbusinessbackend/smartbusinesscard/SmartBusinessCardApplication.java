@@ -21,5 +21,4 @@ public class SmartBusinessCardApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SmartBusinessCardApplication.class, args);
 	}
-
 }
