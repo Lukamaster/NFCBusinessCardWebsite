@@ -33,7 +33,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests().requestMatchers(PathRequest.toH2Console()).permitAll();
+        //http.authorizeHttpRequests().requestMatchers(PathRequest.toH2Console()).permitAll();
         http.headers().frameOptions().disable();
 
         http.csrf()
