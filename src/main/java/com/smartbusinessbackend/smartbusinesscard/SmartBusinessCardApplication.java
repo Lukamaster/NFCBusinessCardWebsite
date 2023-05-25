@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @OpenAPIDefinition
 @SecurityScheme(
-		name = "bearerAuth",
+		name = "securityScheme",
 		scheme = "bearer",
 		bearerFormat = "JWT",
 		type = SecuritySchemeType.HTTP,

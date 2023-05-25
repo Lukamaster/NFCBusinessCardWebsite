@@ -2,7 +2,8 @@ package com.smartbusinessbackend.smartbusinesscard.controller;
 
 import com.smartbusinessbackend.smartbusinesscard.stripe.PaymentDTO;
 import com.smartbusinessbackend.smartbusinesscard.stripe.service.StripeService;
-import com.stripe.model.Charge;
+import com.stripe.exception.StripeException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,12 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "securityScheme")
 public class PaymentController {
 
     private final StripeService stripeService;
 
     @PostMapping
-    public ResponseEntity<String> createPayment(@RequestBody PaymentDTO paymentDTO){
+    public ResponseEntity<String> createPayment(@RequestBody PaymentDTO paymentDTO) throws StripeException {
         String chargeStatus = stripeService.executePayment(paymentDTO);
         return ResponseEntity.ok(chargeStatus);
     }

@@ -4,23 +4,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartbusinessbackend.smartbusinesscard.config.PurchaseConfig;
 import com.smartbusinessbackend.smartbusinesscard.model.AppUser;
-import com.smartbusinessbackend.smartbusinesscard.model.PurchasedCard;
+import com.smartbusinessbackend.smartbusinesscard.model.BusinessCard;
+import com.smartbusinessbackend.smartbusinesscard.model.mapper.BusinessCardMapper;
 import com.smartbusinessbackend.smartbusinesscard.service.UserService;
 import com.smartbusinessbackend.smartbusinesscard.stripe.PaymentDTO;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+import com.stripe.model.Customer;
 import com.stripe.param.ChargeCreateParams;
 import com.stripe.param.CustomerCreateParams;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -32,21 +32,17 @@ public class StripeServiceImpl implements StripeService {
     private final UserService userService;
     private final Binding binding;
     private final PurchaseConfig purchaseConfig;
+    private final BusinessCardMapper businessCardMapper;
 
     @Override
     @Transactional
     public String executePayment(PaymentDTO paymentDTO) {
-        //createCustomer(paymentDTO);
         Stripe.apiKey = purchaseConfig.getSecretApiKey();
-        //ChargeCreateParams chargeCreateParams = getChargeCreateParams(paymentDTO);
-        Map<String,Object> chargeParams = new HashMap<>();
-        chargeParams.put("amount", paymentDTO.getAmount());
-        chargeParams.put("currency", paymentDTO.getCurrency());
-        //TODO: finish this payment process, with all the right DTO's and models
-        chargeParams.put("source", "tok_visa");
+        Customer customer = createCustomer(paymentDTO);
+        ChargeCreateParams chargeCreateParams = getChargeCreateParams(paymentDTO, customer);
         try {
-            Charge charge = Charge.create(chargeParams);
-            convertAndSendCustomer(card(paymentDTO.getEmail()));
+            Charge charge = Charge.create(chargeCreateParams);
+            sendToQueueBusinessCardDetails(generateBusinessCardDetails(paymentDTO.getEmail()));
             return charge.getStatus();
         } catch (StripeException | JsonProcessingException e) {
             log.error(e.getMessage());
@@ -54,21 +50,24 @@ public class StripeServiceImpl implements StripeService {
         }
     }
 
-    private void createCustomer(PaymentDTO paymentDTO) {
-        CustomerCreateParams.builder().setName(paymentDTO.getCustomerFullName()).setEmail(paymentDTO.getEmail()).build();
+    private ChargeCreateParams getChargeCreateParams(PaymentDTO paymentDTO, Customer customer) {
+        return ChargeCreateParams.builder().setCustomer(customer.getId()).setReceiptEmail(customer.getEmail())
+                .setCurrency(paymentDTO.getCurrency().toString()).setAmount(paymentDTO.getAmount().longValue()).build();
     }
 
-    private ChargeCreateParams getChargeCreateParams(PaymentDTO paymentDTO) {
-        return new ChargeCreateParams.
-                Builder().
-                setAmount(paymentDTO.getAmount().longValue()).
-                setCurrency(paymentDTO.getCurrency().toString()).
-                setReceiptEmail(paymentDTO.getEmail()).
-                setDescription(paymentDTO.getDescription()).
-                setCustomer("user@gmail.com").build();
+    private Customer createCustomer(PaymentDTO paymentDTO) {
+        CustomerCreateParams customerCreateParams = CustomerCreateParams.builder().
+                setName(paymentDTO.getCustomerFullName()).setEmail(paymentDTO.getEmail()).
+                setSource(purchaseConfig.getCardToken()).build();
+        try {
+            return Customer.create(customerCreateParams);
+        } catch (StripeException e) {
+            log.error(e.getMessage());
+            throw new IllegalArgumentException();
+        }
     }
 
-    private void convertAndSendCustomer(PurchasedCard card) throws JsonProcessingException {
+    private void sendToQueueBusinessCardDetails(BusinessCard card) throws JsonProcessingException {
         String jsonData = objectMapper.writeValueAsString(card);
         try {
             rabbitTemplate.convertAndSend(binding.getExchange(), binding.getRoutingKey(), jsonData);
@@ -78,9 +77,15 @@ public class StripeServiceImpl implements StripeService {
         }
     }
 
-    private PurchasedCard card(String userEmail) {
+    private BusinessCard generateBusinessCardDetails(String userEmail) {
+        if (StringUtils.isEmpty(userEmail)) {
+            log.error("User mail is null, cannot create business card dto.");
+            throw new IllegalArgumentException();
+        }
         AppUser user = userService.findByEmail(userEmail);
+        BusinessCard businessCard = businessCardMapper.mapBusinessCardForUser(user);
         String url = purchaseConfig.getBaseUrl() + user.getId();
-        return PurchasedCard.builder().appUser(user).generatedUrl(url).build();
+        businessCard.setGeneratedUrl(url);
+        return businessCard;
     }
 }

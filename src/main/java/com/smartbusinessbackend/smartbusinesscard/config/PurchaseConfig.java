@@ -1,12 +1,13 @@
 package com.smartbusinessbackend.smartbusinesscard.config;
 
-import com.stripe.Stripe;
-import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Date;
 
 @Configuration
 @ConfigurationProperties(prefix = "purchase")
@@ -22,4 +23,17 @@ public class PurchaseConfig {
 
     @NotEmpty
     private String baseUrl;
+
+    @NotNull
+    private Long creditCardNumber;
+
+    @NotNull
+    private Integer cvc;
+
+    @NotEmpty
+    private String brand;
+
+    @NotEmpty
+    private String cardToken;
+
 }
