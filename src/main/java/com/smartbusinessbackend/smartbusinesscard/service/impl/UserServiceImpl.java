@@ -2,7 +2,9 @@ package com.smartbusinessbackend.smartbusinesscard.service.impl;
 
 import com.smartbusinessbackend.smartbusinesscard.model.AppUser;
 import com.smartbusinessbackend.smartbusinesscard.model.Role;
+import com.smartbusinessbackend.smartbusinesscard.model.dto.AppUserDetailsDto;
 import com.smartbusinessbackend.smartbusinesscard.model.dto.RegisterRequest;
+import com.smartbusinessbackend.smartbusinesscard.model.mapper.AppUserMapper;
 import com.smartbusinessbackend.smartbusinesscard.repository.UserRepository;
 import com.smartbusinessbackend.smartbusinesscard.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Primary
@@ -24,6 +27,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AppUserMapper userMapper;
 
     @Override
     public AppUser findByEmail(String email) {
@@ -52,6 +56,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
            return userRepository.save(appUser);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<AppUser> getAllRegisteredUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public AppUserDetailsDto getUserById(Long id) {
+        Optional<AppUser> userById = userRepository.findById(id);
+        if (userById.isPresent()) {
+            return userMapper.mapUserToDTO(userById.get());
+        } else{
+            log.error("User with provided id: '{}' does not exist in the current database context.",id);
+            throw new IllegalArgumentException();
         }
     }
 
