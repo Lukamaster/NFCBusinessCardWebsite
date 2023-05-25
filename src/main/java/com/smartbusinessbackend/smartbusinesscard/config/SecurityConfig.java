@@ -23,8 +23,6 @@ public class SecurityConfig {
             "/v3/api-docs.yaml",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/h2-console",
-            "/h2-console/**",
             "/error"
     };
     private final JwtAthFilter jwtAthFilter;
@@ -33,7 +31,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests().requestMatchers(PathRequest.toH2Console()).permitAll();
+//        http.authorizeHttpRequests().requestMatchers(PathRequest.toH2Console()).permitAll();
         http.headers().frameOptions().disable();
 
         http.csrf()
