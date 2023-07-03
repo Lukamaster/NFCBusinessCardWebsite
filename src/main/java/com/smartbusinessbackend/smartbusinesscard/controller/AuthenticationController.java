@@ -1,5 +1,4 @@
 package com.smartbusinessbackend.smartbusinesscard.controller;
-
 import com.smartbusinessbackend.smartbusinesscard.model.dto.AuthenticationRequest;
 import com.smartbusinessbackend.smartbusinesscard.model.dto.AuthenticationResponse;
 import com.smartbusinessbackend.smartbusinesscard.model.dto.RegisterRequest;
